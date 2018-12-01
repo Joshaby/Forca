@@ -147,7 +147,7 @@ def Autentica():
 
 class Vegenere(object):
     def __init__(self, pal):
-        self.Alpha = "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
+        self.Alpha = "1234567890ABCDEFGHIJKLMNOPQRSTUVWXYZ"
         self.MenCripto = ""
         self.MenDescripto = ""
         self.Palavra = pal.upper()
@@ -174,8 +174,8 @@ class Vegenere(object):
             else:
                 y = self.Alpha.find(self.Palavra[i])
                 z = self.Alpha.find(self.lixo[i])
-                c = (y - z) + 26
-                self.MenDescripto += self.Alpha[c % 26]
+                c = (y - z) + 36
+                self.MenDescripto += self.Alpha[c % 36]
         return "%s" % self.MenDescripto
 
     def encript(self):
@@ -189,7 +189,7 @@ class Vegenere(object):
                 y = self.Alpha.find(self.Palavra[i])
                 z = self.Alpha.find(self.lixo[i])
                 b = y + z
-                self.MenCripto += self.Alpha[b % 26]
+                self.MenCripto += self.Alpha[b % 36]
         return "%s" % self.MenCripto
 
 
