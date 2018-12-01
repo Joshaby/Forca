@@ -250,7 +250,7 @@ def Forca_main():
                     self.palavra += "U"
                 else:
                     self.palavra += i
-            print(self.palavra_raw, self.palavra)
+            #print(self.palavra_raw, self.palavra)
 
             # CONSTRUÇÃO DA INTERFACE
 
