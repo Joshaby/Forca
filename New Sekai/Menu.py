@@ -6,6 +6,7 @@ import string
 import random
 import os
 
+
 def Autentica():
     def autenticar(x):
         if entrada1.get() == "" or entrada2.get() == "":
@@ -15,28 +16,34 @@ def Autentica():
             # VALIDAÇÃO DO ARQUIVO DO CADASTRO
 
             try:
-                mae = open("./storage/bin/HTKFLAWH.txt", "r")
+                mae = open("./storage/bin/config.txt", "r")
             except:
-                mae = open("./storage/bin/HTKFLAWH.txt", "w")
+                mae = open("./storage/bin/config.txt", "w")
             nao = False
             mae.close()
-            mae = open("./storage/bin/HTKFLAWH.txt", "r")
+            mae = open("./storage/bin/config.txt", "r")
 
-            b = entrada1.get()
+            b = entrada1.get().upper()
             lista = mae.readlines()
+            cont = 0
             for u in lista:
                 linha = u.split('###')
-                if linha[0] == b:
+                if Vegenere(linha[0]).decript() == b:
                     nao = True
                     break
+                cont += 1
             if not nao:
                 resultado["text"] = "Usuário não cadastrado!"
                 resultado["fg"] = "red"
             else:
-                if entrada2.get() != linha[1][:-1]:
+                b = entrada2.get().upper()
+                #print(b, Vegenere(linha[1]).decript())
+                if b != Vegenere(linha[1]).decript():
                     resultado["text"] = "Senha Incorreta!"
                 else:
-                    l.append(entrada1.get())
+                    l.append(Vegenere(entrada1.get()).encript())
+                    l.append(Vegenere(entrada2.get()).encript())
+                    l.append(cont)
                     janela.destroy()
             mae.close()
             try:
@@ -58,17 +65,17 @@ def Autentica():
             resultado["text"] = "Digite uma senha"
         else:
             try:
-                mae = open("./storage/bin/HTKFLAWH.txt", "r")
+                mae = open("./storage/bin/config.txt", "r")
             except:
-                mae = open("./storage/bin/HTKFLAWH.txt", "w")
+                mae = open("./storage/bin/config.txt", "w")
             mae.close()
-            mae = open("./storage/bin/HTKFLAWH.txt", "r")
+            mae = open("./storage/bin/config.txt", "r")
             linha = ''
-            b = entrada1.get()
+            b = entrada1.get().upper()
             cadastro = True
             for i in mae.readlines():
                 i = i.split("###")
-                if b == i[0]:
+                if b == Vegenere(i[0]).decript():
                     cadastro = False
                     break
             mae.close()
@@ -80,9 +87,9 @@ def Autentica():
                 texto2["text"] = "Senha"
                 texto2["fg"] = "black"
             else:
-                mae = open("./storage/bin/HTKFLAWH.txt", "a")
-                linha += "%s###" % entrada1.get()
-                linha += entrada2.get()
+                mae = open("./storage/bin/config.txt", "a")
+                linha += "%s###" % Vegenere(entrada1.get()).encript()
+                linha += Vegenere(entrada2.get()).encript() + "###" + "0"
                 mae.write("%s\n" % linha)
                 mae.close()
                 resultado["text"] = "Cadastrado Com Sucesso!"
@@ -92,12 +99,6 @@ def Autentica():
                 texto2["fg"] = "black"
                 texto1.pack()
                 texto2.pack()
-                try:
-                    lead = open("./storage/bin/QXHIUVFKK.txt", "a")
-                except:
-                    lead = open("./storage/bin/QXHIUVFKK.txt", "w")
-                lead.write("%s###%d\n" % (b, 0))
-                lead.close()
             try:
                 entrada1.delete(0, "end")
                 entrada2.delete(0, "end")
@@ -140,9 +141,6 @@ def Autentica():
     music.pack(padx=100, pady=4)
     janela.mainloop()
     return l
-
-
-# CIFRA DE VEGENRE
 
 
 class Vegenere(object):
@@ -195,6 +193,7 @@ class Vegenere(object):
 
 def Forca_main():
     global score
+    global a
     class Forca(object):
         def __init__(self, master):
             self.condmusic = True
@@ -270,6 +269,7 @@ def Forca_main():
             self.letras = string.ascii_uppercase
 
             def botao(x):
+                global score
                 self.tent["bg"] = "light gray"
                 self.jogo["fg"] = "Green"
                 if x in self.tentadas:
@@ -287,24 +287,26 @@ def Forca_main():
                             self.scoreF.pack()
                             cond = True
                     if not cond:
-                        self.falhas += 1
+                        #self.falhas += 1
                         self.jogo["fg"] = "red"
                         faus = PhotoImage(file=("./storage/imagens/fim%d.png" % self.falhas))
-                        #"GARBAGE COLLECTION DELETA A IMAGEM SE NAO DECLARAR O .IMAGE"
+                        # "GARBAGE COLLECTION DELETA A IMAGEM SE NAO DECLARAR O .IMAGE"
                         self.boneco.image = faus
                         self.boneco.update_idletasks()
                         self.boneco.configure(image=faus)
                         self.boneco.pack()
                         janela.update_idletasks()
-                        winsound.PlaySound("./storage/audios/Errou.wav", winsound.SND_FILENAME | winsound.SND_ASYNC)
                     self.jogo["text"] = self.resultados
                     if self.falhas == 6:
+                        winsound.PlaySound("./storage/audios/Errou.wav",
+                                           winsound.SND_FILENAME | winsound.SND_ASYNC | winsound.SND_PURGE)
                         messagebox.showinfo("Perdeu", "\nVOCÊ PERDEU!!!!!!!!!!            \n")
                         messagebox.showinfo("Perdeu", "A palavra secreta era:\n%s" % self.palavra_raw)
                         try:
                             self.score = self.inii[0]
                         except:
                             self.score = 0
+                        score = self.score
                         if self.dificuldade > 5:
                             self.dificuldade -= 1
                         v = open("./storage/.int.txt", "w")
@@ -318,7 +320,9 @@ def Forca_main():
                     winsound.PlaySound("./storage/audios/acertou.wav", winsound.SND_FILENAME | winsound.SND_ASYNC |
                                        winsound.SND_PURGE)
                     messagebox.showinfo("Você achou o ovo", "Parabéns você acertou a palavra secreta\n")
+                    score = self.score
                     self.forget()
+                master.protocol("WM_DELETE_WINDOW",self.sair)
 
             framepd = Frame(self.frame3, bg="light gray")
             framepd.pack(pady=20)
@@ -355,17 +359,36 @@ def Forca_main():
                            command=partial(botao, self.lista_de_botao[i]))
                 a.pack(side=LEFT, pady=1.5, padx=1.5)
 
-            restart = Button(subframe, text="sair", borderwidth=1, width=5, font=("bold", 10),
+            restart = Button(subframe, text="sair", borderwidth=1, width=8, font=("bold", 10),
                              command=self.sair)
             restart.pack(side=LEFT, padx=1.5)
 
         def sair(self):
+            global score
             janela.destroy()
+            with open("./storage/bin/config.txt", "r") as jonata:
+                fe = jonata.readlines()
+                for i in fe:
+                    if a[2] == fe.index(i):
+                        #print(i)
+                        g = i
+                        break
+                g = g.split("###")
+                #print(g[2])
+                if int(g[2]) > score:
+                    score = int(g[2])
+
+            g = "%s###%s###%s\n" % (a[0], a[1], score)
+            with open("./storage/bin/config.txt", "r") as v:
+                cad = v.readlines()
+            with open("./storage/bin/config.txt", "w") as n:
+                for i in cad:
+                    if a[2] == cad.index(i):
+                        n.write("%s" % g)
+                    else:
+                        n.write("%s" % i)
             Menu()
-            try:
-                return self.inii[0]
-            except:
-                return self.score
+
         def music(self):
             if self.condmusic:
                 self.condmusic = False
@@ -400,8 +423,9 @@ def Forca_main():
     janela.iconbitmap("./storage/imagens/icon.ico")
     main = Forca(janela)
     janela.mainloop()
-    score = 0
+
     return score
+
 
 def Score():
     Window3 = Tk()
@@ -409,33 +433,45 @@ def Score():
     Window3.title("Jogo da Forca")
     Window3["bg"] = "white"
 
-    def Exit():
-        Window3.destroy()
-
     Lb3_1 = Label(Window3, text="Recordes")
     Lb3_1["bg"] = "white"
     Lb3_1.pack(anchor=CENTER)
 
-    Bt3_1 = Button(Window3, text="Sair", command=Exit)
+    Bt3_1 = Button(Window3, text="Sair", command=lambda: Window3.destroy())
     Bt3_1["bg"] = "white"
     Bt3_1.pack(side=BOTTOM, anchor=CENTER)
 
-    asd = open("./storage/bin/QXHIUVFKK.txt", "r")
+    asd = open("./storage/bin/config.txt", "r")
     subframe = Frame(Window3)
     subframe.pack(side=RIGHT, ipady=65, anchor=CENTER)
     barra = Scrollbar(subframe)
     barra.pack(side=RIGHT, ipady=65)
     list1 = Listbox(subframe, yscrollcommand=barra.set, font=("verdana", 8, "bold"))
-    list2 = Listbox(subframe, yscrollcommand=barra.set, font=("verdana", 8, "bold"))
-    for i in asd:
+    fa = asd.readlines()
+    #print(fa)
+    while True:
+        cond = True
+        for i in range(len(fa)-1):
+            le1 = fa[i+1].split("###")
+            le1 = int(le1[2][:-1])
+            le2 = fa[i].split("###")
+            le2 = int(le2[2][:-1])
+            #print(le1, le2)
+            if le1 > le2:
+                lixo = fa[i+1]
+                del fa[i+1]
+                fa.insert(i, lixo)
+                #print(fa)
+                cond = False
+        if cond:
+            break
+
+    for i in fa:
         i = i.split("###")
-        list1.insert(END, "%s\n" % i[0])
-        list2.insert(END, "%s\n" % i[1])
+        list1.insert(END, "%s     %s" % (Vegenere(i[0]).decript(), i[2]))
     list1.pack(fill=BOTH, side=LEFT)
-    list2.pack(fill=BOTH, side=RIGHT)
     barra.update_idletasks()
     barra.config(command=list1.yview)
-    barra.config(command=list2.yview)
     asd.close()
     Window3.update_idletasks()
     width = 300
@@ -520,11 +556,12 @@ def Creditos():
     cred.pack(anchor=CENTER)
     creditos.mainloop()
 
+
 def inicializar(x):
     x.update_idletasks()
     x.destroy()
-    a = Forca_main()
-    print(a)
+    main = Forca_main()
+
 
 def Menu():
     Window = Tk()
@@ -567,6 +604,7 @@ def Menu():
     Window.mainloop()
 
 
+score = 0
 a = Autentica()
-if len(a) == 1:
+if len(a) == 3:
     Menu()
