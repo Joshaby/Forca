@@ -291,7 +291,7 @@ def Forca_main():
                             self.scoreF.pack()
                             cond = True
                     if not cond:
-                        # self.falhas += 1
+                        self.falhas += 1
                         self.jogo["fg"] = "red"
                         faus = PhotoImage(file=("./storage/imagens/fim%d.png" % self.falhas))
                         # "GARBAGE COLLECTION DELETA A IMAGEM SE NAO DECLARAR O .IMAGE"
