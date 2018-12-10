@@ -37,7 +37,6 @@ def Autentica():
                 resultado["fg"] = "red"
             else:
                 b = entrada2.get().upper()
-                # print(b, Vegenere(linha[1]).decript())
                 if b != Vegenere(linha[1]).decript():
                     resultado["text"] = "Senha Incorreta!"
                 else:
@@ -60,7 +59,7 @@ def Autentica():
         texto1.pack()
         texto2.pack()
         if entrada1.get() == "":
-            resultado["text"] = "Digite o nome de usuário"
+            resultado["text"] = "Digite um Login"
         elif entrada2.get() == "":
             resultado["text"] = "Digite uma senha"
         else:
@@ -105,6 +104,58 @@ def Autentica():
             except:
                 pass
 
+    def ms(x):
+        def mss():
+            if ent1 == "" and ent2 == "":
+                mens["text"] = "Entrada invalida"
+            l = ""
+            with open("./storage/bin/config.txt", "r") as f:
+                h = f.readlines()
+            print(h)
+            for i in h:
+                print(i, Vegenere(ent0.get()).encript())
+                if (Vegenere(ent0.get()).encript()) in i:
+                    l = i
+                    j = h.index(i)
+                    break
+            l = l.split("###")
+            if ent1.get() != Vegenere(l[1]).decript():
+                mens["text"] = "Senha incorreta"
+            else:
+                with open("./storage/bin/config.txt", "r") as f:
+                    k = f.readlines()
+                with open("./storage/bin/config.txt", "w") as f:
+                    for i in k:
+                        if k.index(i) == j:
+                            g = ("%s###%s###%s" % (l[0], Vegenere(ent2.get()).encript(), l[-1]))
+                            f.write("%s" % g)
+                        else:
+                            f.write(i)
+            jan.destroy()
+            Autentica()
+
+        x.destroy()
+        jan = Tk()
+        jan.geometry('{}x{}+{}+{}'.format(270, 200, 466, 227))
+        jan.title('Autenticação')
+        texto0 = Label(jan, text="Login")
+        ent0 = Entry(jan)
+        texto1 = Label(jan, text="Senha antiga")
+        ent1 = Entry(jan)
+        texto2 = Label(jan, text="Nova senha")
+        ent2 = Entry(jan)
+        ok = Button(jan, text="alterar", command=mss)
+        mens = Label(jan)
+        texto0.pack()
+        ent0.pack(pady=5)
+        texto1.pack()
+        ent1.pack(pady=5)
+        texto2.pack()
+        ent2.pack(pady=5)
+        mens.pack()
+        ok.pack()
+        jan.mainloop()
+
     l = []
     janela = Tk()
     janela.title('Autenticação')
@@ -118,7 +169,7 @@ def Autentica():
     g = 2.5
     x = (janela.winfo_screenwidth() // g) - (width // g)
     y = (janela.winfo_screenheight() // g) - (height // g)
-    janela.geometry('{}x{}+{}+{}'.format(240, 200, int(x), int(y)))
+    janela.geometry('{}x{}+{}+{}'.format(270, 200, int(x), int(y)))
     janela.title("Jogo da Forca")
     janela.iconbitmap("./storage/imagens/icon.ico")
     texto2 = Label(janela, text='Senha')
@@ -126,10 +177,7 @@ def Autentica():
     botao1 = Button(janela, text='Logar', command=partial(autenticar, "x"))
     janela.bind("<Return>", autenticar)
     botao2 = Button(janela, text='Cadastrar', command=cadastrar)
-    som = PhotoImage(file="./storage/imagens/soun.png")
-    music = Button(janela, command=lambda: winsound.PlaySound("300", winsound.SND_ASYNC | winsound.SND_PURGE |
-                                                              winsound.SND_NOWAIT))
-    music.config(image=som, width="40", height="40", activebackground="white")
+    change = Button(janela, text="Mudar senha", command=partial(ms, janela))
     resultado = Label(janela, text='')
     texto1.pack(anchor=CENTER)
     entrada1.pack(anchor=CENTER)
@@ -138,7 +186,7 @@ def Autentica():
     botao1.pack(anchor=CENTER, pady=5)
     botao2.pack(anchor=CENTER)
     resultado.pack(anchor=CENTER)
-    music.pack(padx=100, pady=4)
+    change.pack(anchor=CENTER, side=BOTTOM)
     janela.mainloop()
     return l
 
@@ -195,15 +243,17 @@ def Forca_main():
     global score
     global a
     global mus2
+    global dif
 
     class Forca(object):
         def __init__(self, master):
             self.condmusic = mus2
+            master.protocol("WM_DELETE_WINDOW", self.sair)
             if self.condmusic:
                 winsound.PlaySound("./storage/audios/TTD.wav", winsound.SND_FILENAME | winsound.SND_ASYNC |
                                    winsound.SND_LOOP)
             self.tentadas = []
-            self.dificuldade = 5
+            self.dificuldade = 3
             self.score = 0
             try:
                 ini = open("./storage/.int.txt", "r")
@@ -220,15 +270,14 @@ def Forca_main():
             self.palavra = ''
             self.test = 0
             self.palavra_raw = ''
-            while len(self.palavra_raw) != self.dificuldade:
-                self.v = open("./storage/bin/palavras.txt", "r")
-                self.palavra_raw = random.choice(self.v.readlines()).upper()
-                self.v.close()
-                self.palavra_raw = self.palavra_raw[:-1]
-                f = self.palavra_raw.rfind("#")
-                self.dica = self.palavra_raw[f + 1:]
-                self.palavra_raw = self.palavra_raw[:f - 2]
-                self.palavra_raw = Vegenere(self.palavra_raw).decript()
+            self.v = open("./storage/bin/palavras.txt", "r")
+            self.palavra_raw = random.choice(self.v.readlines()).upper()
+            self.v.close()
+            self.palavra_raw = self.palavra_raw[:-1]
+            f = self.palavra_raw.rfind("#")
+            self.dica = self.palavra_raw[f + 1:]
+            self.palavra_raw = self.palavra_raw[:f - 2]
+            self.palavra_raw = Vegenere(self.palavra_raw).decript()
             for i in self.palavra_raw:
                 if i == "-" or i == " ":
                     self.resultados.append("-")
@@ -251,7 +300,6 @@ def Forca_main():
                     self.palavra += "U"
                 else:
                     self.palavra += i
-            # print(self.palavra_raw, self.palavra)
 
             # CONSTRUÇÃO DA INTERFACE
 
@@ -272,6 +320,7 @@ def Forca_main():
 
             def botao(x):
                 global score
+                global dif
                 self.tent["bg"] = "light gray"
                 self.jogo["fg"] = "Green"
                 if x in self.tentadas:
@@ -284,12 +333,14 @@ def Forca_main():
                     for i in range(len(self.palavra)):
                         if x == self.palavra[i]:
                             self.resultados[i] = self.palavra_raw[i]
-                            self.score += len(self.palavra)
+                            self.score += len(self.palavra) * dif
                             self.scoreF["text"] = "Score:\n%d" % self.score
                             self.scoreF.pack()
                             cond = True
                     if not cond:
-                        # self.falhas += 1
+                        self.falhas += 1
+                        if dif == 2 and self.falhas > 2:
+                            self.dicas["text"] = Vegenere(self.dica).decript()
                         self.jogo["fg"] = "red"
                         faus = PhotoImage(file=("./storage/imagens/fim%d.png" % self.falhas))
                         # "GARBAGE COLLECTION DELETA A IMAGEM SE NAO DECLARAR O .IMAGE"
@@ -308,9 +359,10 @@ def Forca_main():
                             self.score = self.inii[0]
                         except:
                             self.score = 0
-                        score = self.score
-                        if self.dificuldade > 5:
-                            self.dificuldade -= 1
+                        if int(self.score) >= 100:
+                            score = int(self.score) - 100
+                        else:
+                            score = self.score
                         v = open("./storage/.int.txt", "w")
                         v.close()
                         v = open("./storage/.int.txt", "a")
@@ -318,19 +370,21 @@ def Forca_main():
                         v.close()
                         self.forget()
                 if self.resultados.count("_") == 0:
-                    self.dificuldade += 2
+                    if self.falhas == 0:
+                        self.score += len(self.palavra) * 2
                     winsound.PlaySound("./storage/audios/acertou.wav", winsound.SND_FILENAME | winsound.SND_ASYNC |
                                        winsound.SND_PURGE)
-                    messagebox.showinfo("Você achou o ovo", "Parabéns você acertou a palavra secreta\n")
+                    messagebox.showinfo("Você achou o ovo", "Parabéns você acertou a palavra\n")
                     score = self.score
                     self.forget()
-                master.protocol("WM_DELETE_WINDOW", self.sair)
 
             framepd = Frame(self.frame3, bg="light gray")
             framepd.pack(pady=20)
             defal = PhotoImage(file="./storage/imagens/fim0.png")
-            self.boneco = Label(self.frame1, bg="light gray")
-            self.boneco.configure(image=defal)
+            # defal = defal.subsample(2)
+            self.boneco = Label(self.frame1, bg="light gray", image=defal)
+            self.boneco.image = defal
+            # self.boneco.configure(image=defal)
             self.frame1.update_idletasks()
             self.boneco.pack()
 
@@ -349,9 +403,11 @@ def Forca_main():
                               font=("verdana", 20, "bold"), fg="Green")
             self.jogo.pack()
 
-            self.dica = Label(framepd, text="%s" % Vegenere(self.dica).decript(), width=30, height=1, bg="light gray",
-                              font=("verdana", 16, "bold"))
-            self.dica.pack(pady=30)
+            self.dicas = Label(framepd, text="   ", width=30, height=1, bg="light gray",
+                               font=("verdana", 16, "bold"))
+            self.dicas.pack(pady=30)
+            if dif == 1:
+                self.dicas["text"] = Vegenere(self.dica).decript()
             self.lista_de_botao = list(string.ascii_uppercase)
             for i in range(len(self.lista_de_botao)):
                 if i % 7 == 0:
@@ -361,7 +417,7 @@ def Forca_main():
                            command=partial(botao, self.lista_de_botao[i]))
                 a.pack(side=LEFT, pady=1.5, padx=1.5)
 
-            restart = Button(subframe, text="sair", borderwidth=1, width=8, font=("bold", 10),
+            restart = Button(subframe, text="Voltar", borderwidth=1, width=8, font=("bold", 10),
                              command=self.sair)
             restart.pack(side=LEFT, padx=1.5)
 
@@ -372,12 +428,10 @@ def Forca_main():
                 fe = jonata.readlines()
                 for i in fe:
                     if a[2] == fe.index(i):
-                        # print(i)
                         g = i
                         break
                 g = g.split("###")
-                # print(g[2])
-                if int(g[2]) > score:
+                if int(g[2]) > int(score):
                     score = int(g[2])
 
             g = "%s###%s###%s\n" % (a[0], a[1], score)
@@ -390,7 +444,6 @@ def Forca_main():
                     else:
                         n.write("%s" % i)
             Menu()
-
 
         def forget(self):
             self.frame1.pack_forget()
@@ -412,7 +465,11 @@ def Forca_main():
     y = (janela.winfo_screenheight() // g) - (height // g)
     janela.geometry('{}x{}+{}+{}'.format(810, 400, int(x), int(y)))
     janela.configure(background="light gray")
-    winsound.PlaySound("./storage/audios/TTD.wav", winsound.SND_FILENAME | winsound.SND_ASYNC | winsound.SND_LOOP)
+    if mus2:
+        winsound.PlaySound("./storage/audios/TTD.wav", winsound.SND_FILENAME | winsound.SND_ASYNC | winsound.SND_LOOP)
+    else:
+        winsound.PlaySound("300",
+                           winsound.SND_ASYNC | winsound.SND_PURGE | winsound.SND_NOWAIT | winsound.SND_NODEFAULT)
     janela.title("Forca")
     janela.iconbitmap("./storage/imagens/icon.ico")
     main = Forca(janela)
@@ -441,8 +498,8 @@ def Score():
     barra = Scrollbar(subframe)
     barra.pack(side=RIGHT, ipady=65)
     list1 = Listbox(subframe, yscrollcommand=barra.set, font=("verdana", 8, "bold"))
+    list2 = Listbox(subframe, yscrollcommand=barra.set, font=("verdana", 8, "bold"))
     fa = asd.readlines()
-    # print(fa)
     while True:
         cond = True
         for i in range(len(fa) - 1):
@@ -450,20 +507,20 @@ def Score():
             le1 = int(le1[2][:-1])
             le2 = fa[i].split("###")
             le2 = int(le2[2][:-1])
-            # print(le1, le2)
             if le1 > le2:
-                lixo = fa[i + 1]
+                entry = fa[i + 1]
                 del fa[i + 1]
-                fa.insert(i, lixo)
-                # print(fa)
+                fa.insert(i, entry)
                 cond = False
         if cond:
             break
 
     for i in fa:
         i = i.split("###")
-        list1.insert(END, "%s     %s" % (Vegenere(i[0]).decript(), i[2]))
+        list1.insert(END, "%s" % (Vegenere(i[0]).decript()))
+        list2.insert(END, "%s" % (i[2]))
     list1.pack(fill=BOTH, side=LEFT)
+    list2.pack(fill=BOTH, side=RIGHT)
     barra.update_idletasks()
     barra.config(command=list1.yview)
     asd.close()
@@ -477,85 +534,151 @@ def Score():
     Window3.mainloop()
 
 
-def Config():
-    global mus1
-    global mus2
-    Window1 = Tk()
-    Window1.iconbitmap("./storage/imagens/icon.ico")
-    Window1.title("Jogo da Forca")
-    Window1["bg"] = "white"
-    frame_ch = Frame(Window1)
-    frame_ch.pack(side=TOP, pady=10)
-    ch11 = True
-    ch21 = True
-    def Exit():
-        Window1.destroy()
+class Config(object):
+    def __init__(self):
+        global mus1
+        global mus2
+        global a
+        self.Window1 = Tk()
+        self.Window1.iconbitmap("./storage/imagens/icon.ico")
+        self.Window1.title("Jogo da Forca")
+        self.Window1["bg"] = "white"
+        self.frame_ch = Frame(self.Window1)
+        self.frame_ch.pack(side=TOP, pady=10)
+        self.ch11 = mus1
+        self.ch21 = mus2
+        self.botao()
 
-    def music1():
-        global ch11
-        global ch21
-        ch11 = not ch11
-        if not ch11:
-            winsound.PlaySound(winsound.SND_PURGE)
+    def Exit(self):
+        self.Window1.destroy()
+
+    def music1(self):
+        global mus1
+        self.ch11 = not self.ch11
+        if not self.ch11:
+            winsound.PlaySound("300", winsound.SND_ASYNC | winsound.SND_PURGE | winsound.SND_NOWAIT)
+            mus1 = self.ch11
         else:
             winsound.PlaySound("./storage/audios/menu.wav",
                                winsound.SND_FILENAME | winsound.SND_ASYNC | winsound.SND_LOOP)
-    def music2():
-        ch21 = not ch21
-        if not ch21:
+            mus1 = self.ch11
+
+    def music2(self):
+        global mus2
+        self.ch21 = not self.ch21
+        if not self.ch21:
             mus2 = False
         else:
             mus2 = True
-    def Reset():
-        Window2 = Tk()
-        Window2.iconbitmap("./storage/imagens/icon.ico")
-        Window2.title("Jogo da Forca")
-        Window2["bg"] = "white"
 
+    def Reset(self):
+        self.Window2 = Tk()
+        self.Window2.iconbitmap("./storage/imagens/icon.ico")
+        self.Window2.title("Jogo da Forca")
+        self.Window2["bg"] = "white"
+
+        def sim():
+            self.Window2.destroy()
+            with open("./storage/bin/config.txt", "r") as p:
+                listt = p.readlines()
+            with open("./storage/bin/config.txt", "w") as p:
+                for i in range(len(listt)):
+                    if i == a[2]:
+                        s = ("%s###%s###0" % (a[0], a[1]))
+                        p.write("%s\n" % s)
+                    else:
+                        p.write(listt[i])
 
         def Exit():
-            Window2.destroy()
+            self.Window2.destroy()
 
-        Lb2_1 = Label(Window2, text="Deseja apagar todos os dados do jogo?")
+        Lb2_1 = Label(self.Window2, text="Deseja apagar todos os dados do jogo?")
         Lb2_1["bg"] = "white"
         Lb2_1.pack()
 
-        subf_reset = Frame(Window2, bg="white")
+        subf_reset = Frame(self.Window2, bg="white")
         subf_reset.pack(pady=10)
-        Bt2_1 = Button(subf_reset, text="Sim", width=10, command=lambda: os.remove("./storage/bin/QXHIUVFKK"))
+        Bt2_1 = Button(subf_reset, text="Sim", width=10, command=sim)
         Bt2_1["bg"] = "white"
         Bt2_1.pack(side=LEFT)
 
         Bt2_2 = Button(subf_reset, text="Não", width=10, command=Exit)
         Bt2_2["bg"] = "white"
         Bt2_2.pack(side=RIGHT, padx=20)
-        Window2.update_idletasks()
+        self.Window2.update_idletasks()
         width = 240
         height = 80
-        x = (Window2.winfo_screenwidth() // 2) - (width // 2)
-        y = (Window2.winfo_screenheight() // 2) - (height // 2)
-        Window2.geometry('{}x{}+{}+{}'.format(width, height, x, y))
-        Window2.resizable(False, False)
-        Window2.mainloop()
+        x = (self.Window2.winfo_screenwidth() // 2) - (width // 2)
+        y = (self.Window2.winfo_screenheight() // 2) - (height // 2)
+        self.Window2.geometry('{}x{}+{}+{}'.format(width, height, x, y))
+        self.Window2.resizable(False, False)
+        self.Window2.mainloop()
 
-    CH1 = Checkbutton(frame_ch, text="Musica no jogo", state=ACTIVE, command=music2).pack()
-    CH2 = Checkbutton(frame_ch, text="Musica no menu", state=ACTIVE, command=music1).pack()
-    Bt1_1 = Button(Window1, text="Apagar Dados", command=Reset)
-    Bt1_1["bg"] = "white"
-    Bt1_1.pack()
+    def addp(self):
+        def ad():
+            a = "%s###%s" % (Vegenere(en1.get()).encript(), Vegenere(en2.get()).encript())
+            cond = True
+            with open("./storage/bin/palavras.txt", "r") as f:
+                for i in f:
+                    if a == i[:-1]:
+                        cond = False
+            if cond:
+                with open("./storage/bin/palavras.txt", "a") as f:
+                    f.write("%s\n" % a)
+                self.Window2.destroy()
 
-    Bt2_1 = Button(Window1, text="Sair", command=Exit)
-    Bt2_1["bg"] = "white"
-    Bt2_1.pack(side=BOTTOM)
+        self.Window2 = Tk()
+        self.Window2.iconbitmap("./storage/imagens/icon.ico")
+        self.Window2.title("Jogo da Forca")
+        self.Window2["bg"] = "white"
 
-    Window1.update_idletasks()
-    width = 200
-    height = 180
-    x = (Window1.winfo_screenwidth() // 2) - (width // 2)
-    y = (Window1.winfo_screenheight() // 2) - (height // 2)
-    Window1.geometry('{}x{}+{}+{}'.format(width, height, x, y))
-    Window1.resizable(False, False)
-    Window1.mainloop()
+        Lb2_1 = Label(self.Window2, text="Digite a palavra e a dica respectivamente:")
+        Lb2_1.pack()
+
+        subf_reset = Frame(self.Window2, bg="white")
+        subf_reset.pack(pady=10)
+        en1 = Entry(self.Window2)
+        en1["bg"] = "white"
+        en1.pack(pady=2.5)
+
+        en2 = Entry(self.Window2)
+        en2.pack(pady=2.5)
+
+        self.b1 = Button(self.Window2, text="Ok", bg="white", command=ad)
+        self.b1.pack()
+        self.Window2.update_idletasks()
+        width = 240
+        height = 130
+        x = (self.Window2.winfo_screenwidth() // 2) - (width // 2)
+        y = (self.Window2.winfo_screenheight() // 2) - (height // 2)
+        self.Window2.geometry('{}x{}+{}+{}'.format(width, height, x, y))
+        self.Window2.resizable(False, False)
+
+        self.Window2.mainloop()
+
+    def botao(self):
+        self.CH1 = Checkbutton(self.frame_ch, text="Remover musica no jogo", state=ACTIVE, command=self.music2).pack()
+        self.CH2 = Checkbutton(self.frame_ch, text="Remover musica no menu", state=ACTIVE, command=self.music1).pack()
+        self.Bt1_1 = Button(self.Window1, text="Apagar Dados", command=self.Reset)
+        self.Bt1_1["bg"] = "white"
+        self.Bt1_1.pack()
+
+        self.bt3 = Button(self.Window1, text="Adicionar Palavra", command=self.addp)
+        self.bt3["bg"] = "white"
+        self.bt3.pack()
+
+        self.Bt2_1 = Button(self.Window1, text="Sair", command=self.Exit)
+        self.Bt2_1["bg"] = "white"
+        self.Bt2_1.pack(side=BOTTOM)
+
+        self.Window1.update_idletasks()
+        width = 200
+        height = 180
+        x = (self.Window1.winfo_screenwidth() // 2) - (width // 2)
+        y = (self.Window1.winfo_screenheight() // 2) - (height // 2)
+        self.Window1.geometry('{}x{}+{}+{}'.format(width, height, x, y))
+        self.Window1.resizable(False, False)
+        self.Window1.mainloop()
 
 
 def Creditos():
@@ -578,12 +701,72 @@ def Creditos():
 def inicializar(x):
     x.update_idletasks()
     x.destroy()
-    main = Forca_main()
+    global mus1
+    global dif
+    Window = Tk()
+    Window.iconbitmap("./storage/imagens/icon.ico")
+    Window.title("Forca do Fausto")
+    back_ground = PhotoImage(file="./storage/imagens/back.png")
+    background = Label(Window, image=back_ground)
+    background.place(x=0, y=0)
+    Window["bg"] = "white"
+
+    def facil(x):
+        global dif
+        dif = 1
+        Window.destroy()
+        main = Forca_main()
+
+    def medio(x):
+        global dif
+        dif = 2
+        Window.destroy()
+        main = Forca_main()
+
+    def dificil(x):
+        global dif
+        dif = 3
+        Window.destroy()
+        main = Forca_main()
+
+    def Voltar(x):
+        x.update_idletasks()
+        x.destroy()
+        Menu()
+    Bt1 = Button(Window, text="Fácil", command=partial(facil, Window))
+    Bt1["bg"] = "white"
+    Bt1.place(x=110, y=230, width=90)
+
+    Bt2 = Button(Window, text="Médio", command=partial(medio, Window))
+    Bt2["bg"] = "white"
+    Bt2.place(x=230, y=230, width=90)
+
+    Bt3 = Button(Window, text="Dificil", command=partial(dificil, Window))
+    Bt3["bg"] = "white"
+    Bt3.place(x=350, y=230, width=90)
+
+    voltar = Button(Window, text="Voltar", command=partial(Voltar, Window))
+    voltar["bg"] = "white"
+    voltar.place(x=550, y=340, width=40)
+    Window.update_idletasks()
+    width = 600
+    height = 400
+    g = 2
+    x = (Window.winfo_screenwidth() // g) - (width // g)
+    y = (Window.winfo_screenheight() // g) - (height // g)
+    Window.geometry('{}x{}+{}+{}'.format(width, height, x, y))
+    Window.resizable(False, False)
+    Window.mainloop()
+    # main = Forca_main()
 
 
 def Menu():
+    global mus1
     Window = Tk()
-    winsound.PlaySound("./storage/audios/menu.wav", winsound.SND_FILENAME | winsound.SND_ASYNC | winsound.SND_LOOP)
+    if mus1:
+        winsound.PlaySound("./storage/audios/menu.wav", winsound.SND_FILENAME | winsound.SND_ASYNC | winsound.SND_LOOP)
+    else:
+        winsound.PlaySound("300", winsound.SND_ASYNC | winsound.SND_PURGE | winsound.SND_NOWAIT)
     Window.iconbitmap("./storage/imagens/icon.ico")
     Window.title("Jogo da Forca")
     back_ground = PhotoImage(file="./storage/imagens/back.png")
@@ -622,6 +805,7 @@ def Menu():
     Window.mainloop()
 
 
+dif = 1
 mus1 = True
 mus2 = True
 
